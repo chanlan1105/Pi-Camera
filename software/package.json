@@ -9,10 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/web-push": "^3.6.4",
+    "flowbite": "^3.1.2",
+    "flowbite-react": "^0.12.7",
     "next": "15.4.6",
     "radix-ui": "^1.4.2",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
