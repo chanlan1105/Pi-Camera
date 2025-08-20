@@ -1,7 +1,4 @@
-/** Push notification VAPID public key */
-const applicationServerPublicKey: string = "BMWDz16hM3ti91Ybpb-Hk-NEu8eJNwBT2kgF3baRhQi1nqk3ahkICPdq6I8kRhaOe4DOSKh-bCeuQJ_RvB5cPiI";
-
-export default async function init(): Promise<null | ServiceWorkerRegistration | "error" | "unsupported"> {
+async function init(): Promise<null | ServiceWorkerRegistration | "error" | "unsupported"> {
     let swRegistration: null | ServiceWorkerRegistration = null;
 
     if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -22,3 +19,6 @@ export default async function init(): Promise<null | ServiceWorkerRegistration |
 
     return swRegistration;
 }
+
+const swRegistration = await init();
+export default swRegistration;
