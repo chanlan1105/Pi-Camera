@@ -1,4 +1,4 @@
-import { OBJECT_TYPES } from "@/globals/objectTypes";
+import { OBJECT_TYPES } from "@/lib/objectTypes";
 import { Checkbox, Label } from "flowbite-react";
 import { useState } from "react";
 

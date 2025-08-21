@@ -1,7 +1,7 @@
 import SideMenu from "@/components/SideMenu";
 import Tabbar from "@/components/Tabbar";
 import People from "./People";
-import { OBJECT_TYPES } from "@/globals/objectTypes";
+import { OBJECT_TYPES } from "@/lib/objectTypes";
 
 export default function Object_Detection() {
     return <main className="flex">

@@ -4,14 +4,15 @@ import SideMenu from "@/components/SideMenu";
 import { Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import swRegistration from "./init";
-import SubscribedOptions from "./subscribed_options";
+import SubscribedOptions from "./SubscribedOptions";
 import { subscribeUser } from "./utils";
-import getUUID from "@/globals/uuid";
+import getUUID from "@/lib/uuid";
+import { NotificationStatusTypes } from "./enum";
 
 export default function() {
     const [isSubscribed, setIsSubscribed] = useState<boolean | string>(false);
     const [uuid, setUuid] = useState<string>("");
-    const [notificationsAllowed, setNotificationsAllowed] = useState<boolean | null>(null);
+    const [notificationStatus, setNotificationStatus] = useState<NotificationStatusTypes>(NotificationStatusTypes.Default);
 
     // Get UUID from localStorage
     useEffect(() => {
@@ -33,11 +34,7 @@ export default function() {
 
     useEffect(() => {
         // Determine if user has allowed push notifications on this browser
-        setNotificationsAllowed(({
-            "default": null,
-            "granted": true,
-            "denied": false
-        })[Notification.permission]);
+        setNotificationStatus(Notification.permission as NotificationStatusTypes);
     }, []);
 
     return <main className="flex">
@@ -55,14 +52,18 @@ export default function() {
                         <p className="mb-2">Push notifications are not enabled.</p>
                         <Button
                             size="sm"
-                            className={"select-none " + uuid && notificationsAllowed !== false ? "cursor-pointer" : "cursor-not-allowed"}
-                            disabled={!uuid || notificationsAllowed === false}
+                            className={"select-none " + uuid && notificationStatus !== NotificationStatusTypes.Denied ? "cursor-pointer" : "cursor-not-allowed"}
+                            disabled={!uuid || notificationStatus === NotificationStatusTypes.Denied || notificationStatus === NotificationStatusTypes.Processing}
                             onClick={() => 
-                                subscribeUser(setIsSubscribed, setNotificationsAllowed, uuid)
+                                subscribeUser(setIsSubscribed, setNotificationStatus, uuid)
                             }
                         >
                             {
-                                notificationsAllowed === false ? "Push Notifications Blocked" : "Enable Push Notifications"
+                                notificationStatus === NotificationStatusTypes.Denied ?
+                                    "Push Notifications Blocked" :
+                                notificationStatus === NotificationStatusTypes.Processing ? 
+                                    <>Processing&hellip;</> :
+                                    "Enable Push Notifications"
                             }
                         </Button>
                     </>

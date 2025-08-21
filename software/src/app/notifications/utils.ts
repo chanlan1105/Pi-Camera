@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useEffect } from "react";
 import swRegistration from "./init";
 import "dotenv/config";
+import { NotificationStatusTypes } from "./enum";
 
 /** Push notification VAPID public key */
 const applicationServerPublicKey: string = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? (() => {
@@ -23,7 +24,10 @@ export function urlB64ToUint8Array(base64String: Base64URLString) {
 }
 
 /** Attempts to subscribe the user to push notifications. */
-export function subscribeUser(setIsSubscribed: Dispatch<SetStateAction<any>>, setNotificationsAllowed: Dispatch<SetStateAction<any>>, id: string) {
+export function subscribeUser(setIsSubscribed: Dispatch<SetStateAction<any>>, setNotificationStatus: Dispatch<SetStateAction<any>>, id: string) {
+    // Prevent the user from clicking the subscribe button twice
+    setNotificationStatus(NotificationStatusTypes.Processing);
+
     const applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);
 
     if ('serviceWorker' in navigator && swRegistration instanceof ServiceWorkerRegistration) {
@@ -37,7 +41,7 @@ export function subscribeUser(setIsSubscribed: Dispatch<SetStateAction<any>>, se
             await fetch("/api/web_push/subscribe", {
                 method: "POST",
                 body: JSON.stringify({
-                    subscription,
+                    sub: subscription,
                     id
                 }),
                 headers: {
@@ -45,16 +49,12 @@ export function subscribeUser(setIsSubscribed: Dispatch<SetStateAction<any>>, se
                 }
             });
 
+            setNotificationStatus(Notification.permission);
             setIsSubscribed(true);
         }).catch(err => {
             console.log("Failed to subscribe the user.", err);
             
-            setNotificationsAllowed(({
-                "default": null,
-                "granted": true,
-                "denied": false
-            })[Notification.permission]);
-
+            setNotificationStatus(Notification.permission);
             setIsSubscribed(false);
         });
     }
