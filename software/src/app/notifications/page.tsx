@@ -5,7 +5,7 @@ import { Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import swRegistration from "./init";
 import SubscribedOptions from "./SubscribedOptions";
-import { subscribeUser } from "./utils";
+import { sendTestNotification, subscribeUser } from "./utils";
 import getUUID from "@/lib/uuid";
 import { NotificationStatusTypes } from "./enum";
 
@@ -13,6 +13,7 @@ export default function() {
     const [isSubscribed, setIsSubscribed] = useState<boolean | string>(false);
     const [uuid, setUuid] = useState<string>("");
     const [notificationStatus, setNotificationStatus] = useState<NotificationStatusTypes>(NotificationStatusTypes.Default);
+    const [testNotificationStatus, setTestNotificationStatus] = useState<"idle" | "processing">("idle");
 
     // Get UUID from localStorage
     useEffect(() => {
@@ -47,12 +48,25 @@ export default function() {
                 isSubscribed == "unsupported" ? 
                     <p>Your browser does not support push notifications.</p> :
                 isSubscribed === true ?
-                    null :
+                    <>
+                        <p className="mb-2">Push notifications are enabled!</p>
+                        <Button
+                            size="sm"
+                            color="light"
+                            className="cursor-pointer transition-colors transition-shadow"
+                            disabled={testNotificationStatus == "processing"}
+                            onClick={() => {
+                                sendTestNotification(setTestNotificationStatus, uuid)
+                            }}
+                        >
+                            {testNotificationStatus == "idle" ? "Send test notification" : <>"Processing"&hellip;</> }
+                        </Button>
+                    </> :
                     <>
                         <p className="mb-2">Push notifications are not enabled.</p>
                         <Button
                             size="sm"
-                            className={"select-none " + uuid && notificationStatus !== NotificationStatusTypes.Denied ? "cursor-pointer" : "cursor-not-allowed"}
+                            className={"select-none transition-colors transition-shadow " + uuid && notificationStatus !== NotificationStatusTypes.Denied ? "cursor-pointer" : "cursor-not-allowed"}
                             disabled={!uuid || notificationStatus === NotificationStatusTypes.Denied || notificationStatus === NotificationStatusTypes.Processing}
                             onClick={() => 
                                 subscribeUser(setIsSubscribed, setNotificationStatus, uuid)

@@ -5,7 +5,7 @@ self.addEventListener("push", event => {
     // Send push notification
     /** @TODO Save metadata to identify spotted object */
     event.waitUntil(
-        self.ServiceWorkerRegistration.showNotification("Pi_Camera", {
+        self.registration.showNotification("Pi_Camera", {
             body: event.data.text()
         })
     )

@@ -2,11 +2,7 @@ import { Dispatch, SetStateAction, useEffect } from "react";
 import swRegistration from "./init";
 import "dotenv/config";
 import { NotificationStatusTypes } from "./enum";
-
-/** Push notification VAPID public key */
-const applicationServerPublicKey: string = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? (() => {
-    throw new Error("NEXT_PUBLIC_VAPID_PUBLIC_KEY is not defined in environment variables. Please run @/app/api/web_push/generateVapidKeys.js and add to the .env file.");
-})();
+import { applicationServerPublicKey } from "../api/web_push/vapidKeys";
 
 export function urlB64ToUint8Array(base64String: Base64URLString) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -61,4 +57,20 @@ export function subscribeUser(setIsSubscribed: Dispatch<SetStateAction<any>>, se
     else {
         return console.error("Service worker is not registered.");
     }
+}
+
+export function sendTestNotification(setTestNotificationStatus: Dispatch<SetStateAction<any>>, id: string) {
+    setTestNotificationStatus("processing");
+
+    fetch("/api/web_push/notify", {
+        method: "POST",
+        body: JSON.stringify({
+            id
+        })
+    }).then(async res => {
+        setTestNotificationStatus("idle");
+    }).catch(err => {
+        alert("There was an error sending a push notification.");
+        console.error(err);
+    });
 }
