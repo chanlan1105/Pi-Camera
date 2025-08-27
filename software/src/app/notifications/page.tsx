@@ -59,7 +59,7 @@ export default function() {
                                 sendTestNotification(setTestNotificationStatus, uuid)
                             }}
                         >
-                            {testNotificationStatus == "idle" ? "Send test notification" : <>"Processing"&hellip;</> }
+                            {testNotificationStatus == "idle" ? "Send test notification" : <>Processing&hellip;</> }
                         </Button>
                     </> :
                     <>
