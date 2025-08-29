@@ -8,22 +8,15 @@ from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 
-class StreamingOutput(object):
+class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
         self.frame = None
-        self.buffer = io.BytesIO()
         self.condition = Condition()
     
     def write(self, buf):
-        if buf.startsWith(b"\xff\xd8"):
-            # Received a new frame.
-            # Overwrite existing buffer contents and emit to all clients.
-            self.buffer.truncate()
-            with self.condition:
-                self.frame = self.buffer.getvalue()
-                self.condition.notify_all()
-            self.buffer.seek(0)
-        return self.buffer.write(buf)
+        with self.condition:
+            self.frame = buf
+            self.condition.notify_all()
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
