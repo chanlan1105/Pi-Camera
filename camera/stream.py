@@ -1,9 +1,12 @@
-import io 
-import picamera 
+import io
 import logging
 import socketserver
 from threading import Condition
 from http import server
+
+from picamera2 import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs import FileOutput
 
 class StreamingOutput(object):
     def __init__(self):
@@ -54,12 +57,13 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True 
 
-with picamera.PiCamera(resolution="1280x720", framerate=24) as camera:
-    output = StreamingOutput()
-    camera.start_recording(output, format="mjpeg")
-    try:
-        address = "", 8000
-        server = StreamingServer(address, StreamingHandler)
-        server.serve_forever()
-    finally:
-        camera.stop_recording()
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 720)}))
+output = StreamingOutput()
+picam2.start_recording(JpegEncoder(), FileOutput(output))
+try:
+    address = "", 8000
+    server = StreamingServer(address, StreamingHandler)
+    server.serve_forever()
+finally:
+    picam2.stop_recording()
